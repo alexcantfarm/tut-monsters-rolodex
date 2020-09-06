@@ -4,13 +4,18 @@ import './App.css';
 import {CardList} from './components/card-list/card-list.component';
 import {SearchBox}   from './components/search-box/search-box.component';
 class App extends React.Component {
-  constructor() {
-    super();
-
+  constructor(props) {
+    // by passing the props into the ctor,
+    // you can access and use them here as well
+    super(props);
+    console.log(props)
     this.state = {
       monsters: [],
-      searchField: ''
+      searchField: '',
+      number: this.props.increment
     };
+
+    
 
     /*this is old verbose way to bind methods execution context to the syntactic context
     this.handleChange = this.handleChange.bind(this);
@@ -30,7 +35,19 @@ search arrow function and execution context
 
 binds 'this' to its lexucal scope
 */
-handleChange = e => this.setState({ searchField: e.target.value });
+onSearchChange = e => this.setState({ searchField: e.target.value });
+
+/*
+when wanting to change the state with using the previous value of state, the 
+following function argument syntax should be used,
+and accessing the state values/objects via prevState/first argument of the 
+update method
+*/
+updateStateUsingPreviousState = () => {
+  this.setState((prevState,prevProps) => { 
+    return {number: prevState.number + prevProps.increment };
+  },
+  () => console.log(this.state.number))};
 
   componentDidMount() {
     fetch('https://jsonplaceholder.typicode.com/users')
@@ -45,10 +62,11 @@ handleChange = e => this.setState({ searchField: e.target.value });
     );
     return (
       <div className="App">
-      <h1>monsters rolodex</h1>
+      <button onClick={this.updateStateUsingPreviousState}>change num</button>
+      <h1>monsters rolodex{this.state.number}</h1>
         <SearchBox
           placeHolder={'search monsters'}
-          handleChange={this.handleChange}
+          handleChange={this.onSearchChange}
         />
         <CardList monsters={filteredMonsters} filter={this.state.searchField} />
       </div>
